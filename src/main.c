@@ -1,7 +1,19 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_main.h"
 #include "chip8.h"
+#include "chip8_keyboard.h"
+
+// Corresponds to CHIP-8 keys:
+// 1 2 3 C
+// 4 5 6 D
+// 7 8 9 E
+// A 0 B F
+const char keyboard_map[CHIP8_TOTAL_KEYS] = {
+    SDLK_x, SDLK_1, SDLK_2, SDLK_3, SDLK_q, SDLK_w, SDLK_e, SDLK_a, SDLK_s, SDLK_d, 
+    SDLK_z, SDLK_c, SDLK_4, SDLK_r, SDLK_f, SDLK_v
+};
 
 int main(int argc, char** argv) 
 {
@@ -38,10 +50,37 @@ int main(int argc, char** argv)
 
         while(SDL_PollEvent(&event))
         {
-            if(event.type == SDL_QUIT)
+            switch (event.type)
             {
-                goto out;
-            }
+                case SDL_QUIT:
+                    goto out;
+                    break;
+                case SDL_KEYDOWN:
+                    {
+                        char key = event.key.keysym.sym;
+                        char vkey = chip8_keyboard_map(keyboard_map, key);
+                        if (vkey != -1)
+                        {
+                            chip8_keyboard_down(&chip8.keyboard, vkey);
+                            printf("Key is down: %x\n", vkey);
+                        }
+                    }
+                    break;
+                case SDL_KEYUP:
+                    {
+                        char key = event.key.keysym.sym;
+                        char vkey = chip8_keyboard_map(keyboard_map, key);
+                        if (vkey != -1)
+                        {
+                            chip8_keyboard_up(&chip8.keyboard, vkey);
+                            printf("Key is up.\n");
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            };
+
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
