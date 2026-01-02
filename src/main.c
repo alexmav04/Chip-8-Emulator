@@ -7,8 +7,15 @@ int main(int argc, char** argv)
 {
 
     struct chip8 chip8;
-    chip8.registers.V[0x0f] = 50;
+    chip8.registers.SP = 0;
 
+    // Test stack functions
+    chip8_stack_push(&chip8, 0xff);
+    chip8_stack_push(&chip8, 0xaa);
+    printf("Popped value: %x\n", chip8_stack_pop(&chip8));
+    printf("Popped value: %x\n", chip8_stack_pop(&chip8));
+
+    // Test memory functions
     chip8_memory_set(&chip8.memory, 0x400, 'Z');
     printf("Value at memory index 0x400: %c\n", chip8_memory_get(&chip8.memory, 0x400));
 
