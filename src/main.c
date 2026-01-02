@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_main.h"
+#include "chip8.h"
 
 int main(int argc, char** argv) 
 {
@@ -8,10 +9,11 @@ int main(int argc, char** argv)
     SDL_Init(SDL_INIT_EVERYTHING);
 
     SDL_Window* window = SDL_CreateWindow(
-        "Chip8 Window", 
+        EMULATOR_WINDOW_TITLE, 
         SDL_WINDOWPOS_UNDEFINED, 
         SDL_WINDOWPOS_UNDEFINED, 
-        640, 320, 
+        CHIP8_WIDTH * CHIP8_WINDOW_MULTIPLIER, 
+        CHIP8_HEIGHT * CHIP8_WINDOW_MULTIPLIER, 
         SDL_WINDOW_SHOWN
     );
 
@@ -31,6 +33,7 @@ int main(int argc, char** argv)
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
+        
         SDL_Rect r;
         r.x = 0;
         r.y = 0;
@@ -43,6 +46,6 @@ int main(int argc, char** argv)
 
 out:
     SDL_DestroyWindow(window);
-    
+
     return 0;
 }
