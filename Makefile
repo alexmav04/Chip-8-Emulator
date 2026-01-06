@@ -3,8 +3,12 @@ FLAGS= -g
 
 OBJECTS= ./build/chip8_memory.o ./build/chip8_stack.o ./build/chip8_keyboard.o ./build/chip8.o
 
-all: ${OBJECTS}
+all: dirs ${OBJECTS}
 	gcc ${FLAGS} ${INCLUDES} ./src/main.c ${OBJECTS} -L ./lib -lmingw32 -lSDL2main -lSDL2 -o ./bin/main
+
+dirs:
+	if not exist build mkdir build
+	if not exist bin mkdir bin
 
 ./build/chip8_memory.o:src/chip8_memory.c
 	gcc ${FLAGS} ${INCLUDES} ./src/chip8_memory.c -c -o ./build/chip8_memory.o
@@ -19,4 +23,5 @@ all: ${OBJECTS}
 	gcc ${FLAGS} ${INCLUDES} ./src/chip8.c -c -o ./build/chip8.o
 
 clean:
-	del build\*
+	if exist build del /Q build\*
+	if exist bin del /Q bin\*

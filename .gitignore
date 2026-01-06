@@ -4,3 +4,6 @@
 # ignore object files
 *.out
 *.o
+
+# ignore visual studio files
+.vscode/
