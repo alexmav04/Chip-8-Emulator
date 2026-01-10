@@ -20,18 +20,20 @@ int main(int argc, char** argv)
 
     struct chip8 chip8;
     chip8_init(&chip8);
+
+    chip8_screen_set(&chip8.screen, 0, 0);
     
     chip8.registers.SP = 0;
 
-    // Test stack functions
-    chip8_stack_push(&chip8, 0xff);
-    chip8_stack_push(&chip8, 0xaa);
-    printf("Popped value: %x\n", chip8_stack_pop(&chip8));
-    printf("Popped value: %x\n", chip8_stack_pop(&chip8));
+    // // Test stack functions
+    // chip8_stack_push(&chip8, 0xff);
+    // chip8_stack_push(&chip8, 0xaa);
+    // printf("Popped value: %x\n", chip8_stack_pop(&chip8));
+    // printf("Popped value: %x\n", chip8_stack_pop(&chip8));
 
-    // Test memory functions
-    chip8_memory_set(&chip8.memory, 0x400, 'Z');
-    printf("Value at memory index 0x400: %c\n", chip8_memory_get(&chip8.memory, 0x400));
+    // // Test memory functions
+    // chip8_memory_set(&chip8.memory, 0x400, 'Z');
+    // printf("Value at memory index 0x400: %c\n", chip8_memory_get(&chip8.memory, 0x400));
 
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -84,17 +86,27 @@ int main(int argc, char** argv)
             };
 
         }
+
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
-        
-        SDL_Rect r;
-        r.x = 0;
-        r.y = 0;
-        r.w = 40;
-        r.h = 40;
 
-        SDL_RenderFillRect(renderer, &r);
+        for (int x = 0; x < CHIP8_WIDTH; x++)
+        {
+            for (int y = 0; y < CHIP8_HEIGHT; y++)
+            {   
+                if (chip8_screen_is_set(&chip8.screen, x, y))
+                {
+                    SDL_Rect r;
+                    r.x = x * CHIP8_WINDOW_MULTIPLIER;
+                    r.y = y * CHIP8_WINDOW_MULTIPLIER;
+                    r.w = CHIP8_WINDOW_MULTIPLIER;
+                    r.h = CHIP8_WINDOW_MULTIPLIER;
+
+                    SDL_RenderFillRect(renderer, &r);
+                }
+            }
+        }
         SDL_RenderPresent(renderer);
     }
 
