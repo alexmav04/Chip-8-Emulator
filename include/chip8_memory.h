@@ -5,7 +5,7 @@
 
 struct chip_memory
 {
-    char memory[CHIP8_MEMORY_SIZE];
+    unsigned char memory[CHIP8_MEMORY_SIZE];
 };
 
 void chip8_memory_set(struct chip_memory* memory, int index, unsigned char value);

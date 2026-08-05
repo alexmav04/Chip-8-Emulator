@@ -21,8 +21,7 @@ int main(int argc, char** argv)
     struct chip8 chip8;
     chip8_init(&chip8);
 
-    chip8_screen_set(&chip8.screen, 0, 0);
-    
+    chip8_screen_draw_sprite(&chip8.screen, 62, 12, &chip8.memory.memory[0x00], 5);
     chip8.registers.SP = 0;
 
     // // Test stack functions
@@ -46,7 +45,7 @@ int main(int argc, char** argv)
         SDL_WINDOW_SHOWN
     );
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_TEXTUREACCESS_TARGET);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     while(1)
     {
@@ -62,7 +61,7 @@ int main(int argc, char** argv)
                 case SDL_KEYDOWN:
                     {
                         char key = event.key.keysym.sym;
-                        char vkey = chip8_keyboard_map(keyboard_map, key);
+                        int vkey = chip8_keyboard_map(keyboard_map, key);
                         if (vkey != -1)
                         {
                             chip8_keyboard_down(&chip8.keyboard, vkey);
@@ -73,7 +72,7 @@ int main(int argc, char** argv)
                 case SDL_KEYUP:
                     {
                         char key = event.key.keysym.sym;
-                        char vkey = chip8_keyboard_map(keyboard_map, key);
+                        int vkey = chip8_keyboard_map(keyboard_map, key);
                         if (vkey != -1)
                         {
                             chip8_keyboard_up(&chip8.keyboard, vkey);
@@ -83,7 +82,7 @@ int main(int argc, char** argv)
                     break;
                 default:
                     break;
-            };
+            }
 
         }
 
