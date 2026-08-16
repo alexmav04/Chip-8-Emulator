@@ -50,8 +50,6 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    printf("%s\n", buf);
-
     struct chip8 chip8;
     chip8_init(&chip8);
     chip8_load(&chip8, buf, size);
@@ -146,6 +144,11 @@ int main(int argc, char** argv)
             Beep(1500, 100 * chip8.registers.sound_timer);
             chip8.registers.sound_timer = 0;
         }
+
+        unsigned short opcode = chip8_memory_get_short(&chip8.memory, chip8.registers.PC);
+        chip8_exec(&chip8, opcode);
+        chip8.registers.PC += 2;
+        printf("PC: %04x, Opcode: %04x\n", chip8.registers.PC, opcode);
     }
 
 out:
