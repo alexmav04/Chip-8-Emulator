@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <Windows.h>
 #include "SDL2/SDL.h"
@@ -19,9 +20,42 @@ const char keyboard_map[CHIP8_TOTAL_KEYS] = {
 int main(int argc, char** argv) 
 {
 
+    if (argc < 2)
+    {
+        printf("You must provide a CHIP-8 file to run.\n");
+        return -1;
+    }
+
+    const char* filename = argv[1];
+    printf("Loading CHIP-8 file: %s\n", filename);
+
+    FILE* file = fopen(filename, "rb");
+    if (!file)
+    {
+        printf("Failed to open the file: %s\n", filename);
+        return -1;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    char* buf = malloc(size);
+    size_t res = fread(buf, 1, size, file);
+    fclose(file);
+    if (res != (size_t)size)
+    {
+        printf("Failed to read the file: %s\n", filename);
+        free(buf);
+        return -1;
+    }
+
+    printf("%s\n", buf);
+
     struct chip8 chip8;
     chip8_init(&chip8);
-    chip8_load(&chip8, "Hello, World!", sizeof("Hello, World!"));
+    chip8_load(&chip8, buf, size);
+    free(buf);
 
     chip8_screen_draw_sprite(&chip8.screen, 62, 12, &chip8.memory.memory[0x00], 5);
     chip8.registers.SP = 0;
