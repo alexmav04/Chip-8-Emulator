@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 
     struct chip8 chip8;
     chip8_init(&chip8);
-    chip8.registers.sound_timer = 30;
+    chip8_load(&chip8, "Hello, World!", sizeof("Hello, World!"));
 
     chip8_screen_draw_sprite(&chip8.screen, 62, 12, &chip8.memory.memory[0x00], 5);
     chip8.registers.SP = 0;
