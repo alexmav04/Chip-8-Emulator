@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <Windows.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_main.h"
 #include "chip8.h"
@@ -20,19 +21,10 @@ int main(int argc, char** argv)
 
     struct chip8 chip8;
     chip8_init(&chip8);
+    chip8.registers.delay_timer = 255;
 
     chip8_screen_draw_sprite(&chip8.screen, 62, 12, &chip8.memory.memory[0x00], 5);
     chip8.registers.SP = 0;
-
-    // // Test stack functions
-    // chip8_stack_push(&chip8, 0xff);
-    // chip8_stack_push(&chip8, 0xaa);
-    // printf("Popped value: %x\n", chip8_stack_pop(&chip8));
-    // printf("Popped value: %x\n", chip8_stack_pop(&chip8));
-
-    // // Test memory functions
-    // chip8_memory_set(&chip8.memory, 0x400, 'Z');
-    // printf("Value at memory index 0x400: %c\n", chip8_memory_get(&chip8.memory, 0x400));
 
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -107,6 +99,13 @@ int main(int argc, char** argv)
             }
         }
         SDL_RenderPresent(renderer);
+
+        if (chip8.registers.delay_timer > 0)
+        {
+            Sleep(100);
+            chip8.registers.delay_timer--;
+            printf("Delay timer: %d\n", chip8.registers.delay_timer);
+        }
     }
 
 out:
