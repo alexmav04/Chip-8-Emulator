@@ -55,7 +55,6 @@ int main(int argc, char** argv)
     chip8_load(&chip8, buf, size);
     free(buf);
 
-    chip8_screen_draw_sprite(&chip8.screen, 62, 12, &chip8.memory.memory[0x00], 5);
     chip8.registers.SP = 0;
 
     SDL_Init(SDL_INIT_EVERYTHING);

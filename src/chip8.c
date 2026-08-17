@@ -31,12 +31,21 @@ void chip8_init(struct chip8* chip8)
 
 void chip8_load(struct chip8* chip8, const char* buf, size_t size)
 {
-    assert(size + CHIP8_PROGRAM_LOAD_ADDRESS < CHIP8_MEMORY_SIZE);
+    assert(size + CHIP8_PROGRAM_LOAD_ADDRESS <= CHIP8_MEMORY_SIZE);
     memcpy(&chip8->memory.memory[CHIP8_PROGRAM_LOAD_ADDRESS], buf, size);
     chip8->registers.PC = CHIP8_PROGRAM_LOAD_ADDRESS;
 }
 
 void chip8_exec(struct chip8* chip8, unsigned short opcode) 
 {
+    switch (opcode)
+    {
+        case 0x00E0: // CLS
+            chip8_screen_clear(&chip8->screen);
+            break;
+        case 0x00EE: // RET
+            chip8->registers.PC = chip8_stack_pop(chip8);
+            break;
+    }
 
 }
