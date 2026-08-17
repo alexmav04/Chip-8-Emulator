@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include <memory.h>
 #include <assert.h>
+#include <stdbool.h>
 
 const char chip_8_default_character_set[] = {
     0xf0, 0x90, 0x90, 0x90, 0xf0,  // 0
@@ -36,10 +37,64 @@ void chip8_load(struct chip8* chip8, const char* buf, size_t size)
     chip8->registers.PC = CHIP8_PROGRAM_LOAD_ADDRESS;
 }
 
+static void chip8_exec_8xy(struct chip8* chip8, unsigned short opcode) 
+{
+    unsigned char x = (opcode >> 8) & 0x000F;
+    unsigned char y = (opcode >> 4) & 0x000F;
+    unsigned char final_four_bits = opcode & 0x000F;
+    unsigned short tmp = 0;
+
+    switch (final_four_bits)
+    {
+        case 0x00: // 8xy0 - LD Vx, Vy
+            chip8->registers.V[x] = chip8->registers.V[y];
+            break;
+        case 0x01: // 8xy1 - OR Vx, Vy
+            chip8->registers.V[x] |= chip8->registers.V[y];
+            break;
+        case 0x02: // 8xy2 - AND Vx, Vy
+            chip8->registers.V[x] &= chip8->registers.V[y];
+            break;
+        case 0x03: // 8xy3 - XOR Vx, Vy
+            chip8->registers.V[x] ^= chip8->registers.V[y];
+            break;
+        case 0x04: // 8xy4 - ADD Vx, Vy
+            tmp = chip8->registers.V[x] + chip8->registers.V[y];
+            chip8->registers.V[0x0f] = false;
+            if (tmp > 0xff)
+            {
+                chip8->registers.V[0x0f] = true;
+            }
+            chip8->registers.V[x] = tmp;
+            break;
+        case 0x05: // 8xy5 - SUB Vx, Vy
+            chip8->registers.V[0x0f] = false;
+            if (chip8->registers.V[x] > chip8->registers.V[y])
+            {
+                chip8->registers.V[0x0f] = true;
+            }
+            chip8->registers.V[x] = chip8->registers.V[x] - chip8->registers.V[y];
+            break;
+        case 0x06: // 8xy6 - SHR Vx {, Vy}
+            chip8->registers.V[0x0f] = chip8->registers.V[x] & 0x01;
+            chip8->registers.V[x] >>= 1;
+            break;
+        case 0x07: // 8xy7 - SUBN Vx, Vy
+            chip8->registers.V[0x0f] = chip8->registers.V[y] > chip8->registers.V[x];
+            chip8->registers.V[x] = chip8->registers.V[y] - chip8->registers.V[x];
+            break;
+        case 0x0E: // 8xyE - SHL Vx {, Vy}
+            chip8->registers.V[0x0f] = (chip8->registers.V[x] & 0x80) != 0;
+            chip8->registers.V[x] <<= 1;
+    }
+
+}
+
 static void chip8_exec_extended(struct chip8* chip8, unsigned short opcode) 
 {
     unsigned short nnn = opcode & 0x0FFF;
     unsigned char x = (opcode >> 8) & 0x000F;
+    unsigned char y = (opcode >> 4) & 0x000F;
     unsigned char kk = opcode & 0x00FF;
 
     switch (opcode & 0xF000)
@@ -51,11 +106,33 @@ static void chip8_exec_extended(struct chip8* chip8, unsigned short opcode)
             chip8_stack_push(chip8, chip8->registers.PC);
             chip8->registers.PC = nnn;
             break;
-        case 0x3000:
+        case 0x3000: // SE Vx, byte
             if (chip8->registers.V[x] == kk)
             {
                 chip8->registers.PC += 2;
             }
+            break;
+        case 0x4000: // SNE Vx, byte
+            if (chip8->registers.V[x] != kk)
+            {
+                chip8->registers.PC += 2;
+            }
+            break;
+        case 0x5000: // 5xy0 - SE, Vx, Vy
+            if (chip8->registers.V[x] == chip8->registers.V[y])
+            {
+                chip8->registers.PC += 2;
+            }
+            break;
+        case 0x6000: // 6xkk - LD Vx, byte
+            chip8->registers.V[x] = kk;
+            break;
+        case 0x7000: // 7xkk - ADD Vx, byte
+            chip8->registers.V[x] += kk;
+            break;
+        case 0x8000: // 8xyN - LD/OR/AND/XOR/ADD/SUB/SHR/SUBN/SHL Vx, Vy
+            chip8_exec_8xy(chip8, opcode);
+            break;
     }
 
 }
