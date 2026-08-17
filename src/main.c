@@ -55,10 +55,8 @@ int main(int argc, char** argv)
     chip8_load(&chip8, buf, size);
     free(buf);
 
-    chip8.registers.SP = 0;
-
     SDL_Init(SDL_INIT_EVERYTHING);
-
+    
     SDL_Window* window = SDL_CreateWindow(
         EMULATOR_WINDOW_TITLE, 
         SDL_WINDOWPOS_UNDEFINED, 
@@ -145,9 +143,8 @@ int main(int argc, char** argv)
         }
 
         unsigned short opcode = chip8_memory_get_short(&chip8.memory, chip8.registers.PC);
-        chip8_exec(&chip8, opcode);
         chip8.registers.PC += 2;
-        printf("PC: %04x, Opcode: %04x\n", chip8.registers.PC, opcode);
+        chip8_exec(&chip8, opcode);
     }
 
 out:

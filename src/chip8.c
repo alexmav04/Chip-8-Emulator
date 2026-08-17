@@ -36,6 +36,30 @@ void chip8_load(struct chip8* chip8, const char* buf, size_t size)
     chip8->registers.PC = CHIP8_PROGRAM_LOAD_ADDRESS;
 }
 
+static void chip8_exec_extended(struct chip8* chip8, unsigned short opcode) 
+{
+    unsigned short nnn = opcode & 0x0FFF;
+    unsigned char x = (opcode >> 8) & 0x000F;
+    unsigned char kk = opcode & 0x00FF;
+
+    switch (opcode & 0xF000)
+    {
+        case 0x1000: // JP addr
+            chip8->registers.PC = nnn;
+            break;
+        case 0x2000: // CALL addr
+            chip8_stack_push(chip8, chip8->registers.PC);
+            chip8->registers.PC = nnn;
+            break;
+        case 0x3000:
+            if (chip8->registers.V[x] == kk)
+            {
+                chip8->registers.PC += 2;
+            }
+    }
+
+}
+
 void chip8_exec(struct chip8* chip8, unsigned short opcode) 
 {
     switch (opcode)
@@ -46,6 +70,7 @@ void chip8_exec(struct chip8* chip8, unsigned short opcode)
         case 0x00EE: // RET
             chip8->registers.PC = chip8_stack_pop(chip8);
             break;
+        default:
+            chip8_exec_extended(chip8, opcode);
     }
-
 }
