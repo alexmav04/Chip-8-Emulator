@@ -16,9 +16,8 @@ void chip8_stack_push(struct chip8* chip8, unsigned short value)
 
 unsigned short chip8_stack_pop(struct chip8* chip8)
 {
-    chip8_is_stack_in_bounds(chip8);
-    unsigned short value = chip8->stack.stack[chip8->registers.SP];
     chip8->registers.SP--;
+    chip8_is_stack_in_bounds(chip8);
 
-    return value;
+    return chip8->stack.stack[chip8->registers.SP];
 }

@@ -20,6 +20,7 @@ const char keyboard_map[CHIP8_TOTAL_KEYS] = {
 int main(int argc, char** argv) 
 {
 
+
     if (argc < 2)
     {
         printf("You must provide a CHIP-8 file to run.\n");
@@ -55,6 +56,8 @@ int main(int argc, char** argv)
     chip8_load(&chip8, buf, size);
     free(buf);
 
+    chip8_keyboard_set_map(&chip8.keyboard, keyboard_map);
+
     SDL_Init(SDL_INIT_EVERYTHING);
     
     SDL_Window* window = SDL_CreateWindow(
@@ -67,6 +70,10 @@ int main(int argc, char** argv)
     );
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    chip8.registers.V[0] = 0x00;
+    chip8_exec(&chip8, 0xF00A);
+    printf("%x\n", chip8.registers.V[0]);
 
     while(1)
     {
@@ -82,7 +89,7 @@ int main(int argc, char** argv)
                 case SDL_KEYDOWN:
                     {
                         char key = event.key.keysym.sym;
-                        int vkey = chip8_keyboard_map(keyboard_map, key);
+                        int vkey = chip8_keyboard_map(&chip8.keyboard, key);
                         if (vkey != -1)
                         {
                             chip8_keyboard_down(&chip8.keyboard, vkey);
@@ -93,7 +100,7 @@ int main(int argc, char** argv)
                 case SDL_KEYUP:
                     {
                         char key = event.key.keysym.sym;
-                        int vkey = chip8_keyboard_map(keyboard_map, key);
+                        int vkey = chip8_keyboard_map(&chip8.keyboard, key);
                         if (vkey != -1)
                         {
                             chip8_keyboard_up(&chip8.keyboard, vkey);
