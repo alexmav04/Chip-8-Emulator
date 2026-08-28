@@ -134,6 +134,43 @@ static void chip8_exec_fxkk(struct chip8* chip8, unsigned short opcode)
             chip8->registers.V[x] = pressed_key;
         }
         break;
+        // Fx15 - LD DT, Vx
+        case 0x15:
+            chip8->registers.delay_timer = chip8->registers.V[x];
+            break;
+        // Fx18 - LD ST, Vx
+        case 0x18:
+            chip8->registers.sound_timer = chip8->registers.V[x];
+            break;
+        // Fx1e - Add I, Vx
+        case 0x1e:
+            chip8->registers.I += chip8->registers.V[x];
+            break;
+        // Fx29 - LD F, Vx
+        case 0x29:
+            chip8->registers.I = chip8->registers.V[x] * CHIP8_DEFAULT_SPRITE_HEIGHT;
+        // Fx33 - LD B, Vx
+        case 0x33:
+        {
+            unsigned char hundreds = chip8->registers.V[x] / 100;
+            unsigned char tens = chip8->registers.V[x] / 10 % 10;
+            unsigned char units = chip8->registers.V[x] % 10;
+            chip8_memory_set(&chip8->memory, chip8->registers.I, hundreds);
+            chip8_memory_set(&chip8->memory, chip8->registers.I+1, tens);
+            chip8_memory_set(&chip8->memory, chip8->registers.I+2, units);
+        }
+        // Fx55 - LD [I], Vx
+        case 0x55:
+            for (int i = 0; i <= x; i++)
+            {
+                chip8_memory_set(&chip8->memory, chip8->registers.I+i, chip8->registers.V[i]);
+            }
+        // Fx65 - LD Vx, [I]
+        case 0x65:
+            for (int i = 0; i <= x; i++) 
+            {
+                chip8->registers.V[i] = chip8_memory_get(&chip8->memory, chip8->registers.I+1);
+            }
         default:
             break;
     }
